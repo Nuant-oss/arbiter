@@ -1,9 +1,6 @@
 use std::path::Path;
 
-use arbiter_core::{
-    errors::ArbiterCoreError,
-    events::{Logger, OutputFileType},
-};
+use arbiter_core::{errors::ArbiterCoreError, events::Logger};
 use ethers::types::U256 as eU256;
 use serde::Serialize;
 include!("common.rs");
@@ -67,22 +64,6 @@ async fn data_capture() {
         .run()
         .unwrap();
 
-    Logger::builder()
-        .with_event(arbx.events(), "arbx")
-        .with_event(arby.events(), "arby")
-        .with_event(lex.events(), "lex")
-        .file_type(OutputFileType::CSV)
-        .run()
-        .unwrap();
-
-    Logger::builder()
-        .with_event(arbx.events(), "arbx")
-        .with_event(arby.events(), "arby")
-        .with_event(lex.events(), "lex")
-        .file_type(OutputFileType::Parquet)
-        .run()
-        .unwrap();
-
     generate_events(arbx, arby, lex, client.clone())
         .await
         .unwrap_or_else(|e| {
@@ -93,8 +74,6 @@ async fn data_capture() {
 
     logger_task.await.unwrap();
     std::thread::sleep(std::time::Duration::from_secs(1));
-    assert!(Path::new("./data/output.csv").exists());
-    assert!(Path::new("./data/output.parquet").exists());
     assert!(Path::new("./data/output.json").exists());
     std::fs::remove_dir_all("./data").unwrap();
 }

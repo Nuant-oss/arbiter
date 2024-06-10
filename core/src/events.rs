@@ -28,11 +28,6 @@ use ethers::{
     types::{Filter, FilteredParams},
 };
 use futures_util::Stream;
-use polars::{
-    io::parquet::ParquetWriter,
-    prelude::{CsvWriter, DataFrame, NamedFrom, SerWriter},
-    series::Series,
-};
 use serde::Serialize;
 use serde_json::Value;
 use tokio::{sync::broadcast::Receiver as BroadcastReceiver, task::JoinHandle};
@@ -84,15 +79,6 @@ pub enum OutputFileType {
     /// * `JSON` - Represents the JSON file format. When this variant is used,
     ///   the `EventLogger` will output the logged events to a JSON file.
     JSON,
-    /// * `CSV` - Represents the CSV (Comma Separated Values) file format. When
-    ///   this variant is used, the `EventLogger` will output the logged events
-    ///   to a CSV file.
-    CSV,
-    /// * `Parquet` - Represents the Parquet file format. When this variant is
-    ///   used, the `EventLogger` will output the logged events to a Parquet
-    ///   file. Parquet is a columnar storage file format that is optimized for
-    ///   use with big data processing frameworks.
-    Parquet,
 }
 
 impl Logger {
@@ -269,30 +255,6 @@ impl Logger {
                                 let data = OutputData { events, metadata };
                                 serde_json::to_writer(writer, &data).expect("Unable to write data");
                             }
-                            OutputFileType::CSV => {
-                                // Write the DataFrame to a CSV file
-                                let mut df = flatten_to_data_frame(events);
-                                let file_path = output_dir.join(format!("{}.csv", file_name));
-                                let file = std::fs::File::create(file_path).unwrap_or_else(|_| {
-                                    panic!("Error creating csv file");
-                                });
-                                let mut writer = CsvWriter::new(file);
-                                writer.finish(&mut df).unwrap_or_else(|_| {
-                                    panic!("Error writing to csv file");
-                                });
-                            }
-                            OutputFileType::Parquet => {
-                                // Write the DataFrame to a parquet file
-                                let mut df = flatten_to_data_frame(events);
-                                let file_path = output_dir.join(format!("{}.parquet", file_name));
-                                let file = std::fs::File::create(file_path).unwrap_or_else(|_| {
-                                    panic!("Error creating parquet file");
-                                });
-                                let writer = ParquetWriter::new(file);
-                                writer.finish(&mut df).unwrap_or_else(|_| {
-                                    panic!("Error writing to parquet file");
-                                });
-                            }
                         }
                         break;
                     }
@@ -342,30 +304,6 @@ impl Logger {
     }
 }
 
-fn flatten_to_data_frame(events: BTreeMap<String, BTreeMap<String, Vec<Value>>>) -> DataFrame {
-    // 1. Flatten the BTreeMap
-    let mut contract_names = Vec::new();
-    let mut event_names = Vec::new();
-    let mut event_values = Vec::new();
-
-    for (contract, events) in &events {
-        for (event, values) in events {
-            for value in values {
-                contract_names.push(contract.clone());
-                event_names.push(event.clone());
-                event_values.push(value.to_string());
-            }
-        }
-    }
-
-    // 2. Convert the vectors into a DataFrame
-    DataFrame::new(vec![
-        Series::new("contract_name", contract_names),
-        Series::new("event_name", event_names),
-        Series::new("event_value", event_values),
-    ])
-    .unwrap()
-}
 pub(crate) struct EventTransmuted<B, M, D> {
     /// The event filter's state
     pub filter: Filter,

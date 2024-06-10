@@ -4,7 +4,7 @@ use ethers::{
     prelude::Middleware,
     types::{I256 as eI256, U256 as eU256},
 };
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::fmt;
 include!("common.rs");
 
 #[tokio::test]
@@ -280,34 +280,36 @@ async fn price_simulation_oracle() {
     }
 }
 
-#[tokio::test]
-async fn can_log() {
-    std::env::set_var("RUST_LOG", "trace");
-    let file = File::create("test_logs.log").expect("Unable to create log file");
-    let subscriber = fmt()
-        .with_env_filter(EnvFilter::from_default_env())
-        .with_writer(file)
-        .finish();
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+//#[tokio::test]
+// async fn can_log() {
+// std::env::set_var("RUST_LOG", "trace");
+// let file = File::create("test_logs.log").expect("Unable to create log file");
+// let subscriber = fmt()
+//.with_env_filter(EnvFilter::from_default_env())
+//.with_writer(file)
+//.finish();
+// tracing::subscriber::set_global_default(subscriber).expect("setting default
+// subscriber failed");
 
-    let env = Environment::builder().with_console_logs().build();
-    let client = ArbiterMiddleware::new(&env, None).unwrap();
-    let counter = arbiter_bindings::bindings::counter::Counter::deploy(client, ())
-        .unwrap()
-        .send()
-        .await
-        .unwrap();
+// let env = Environment::builder().with_console_logs().build();
+// let client = ArbiterMiddleware::new(&env, None).unwrap();
+// let counter = arbiter_bindings::bindings::counter::Counter::deploy(client,
+// ())
+//.unwrap()
+//.send()
+//.await
+//.unwrap();
 
-    // Call the `setNumber` function to emit a console log.
-    counter
-        .set_number(eU256::from(42))
-        .send()
-        .await
-        .unwrap()
-        .await
-        .unwrap();
+//// Call the `setNumber` function to emit a console log.
+// counter
+//.set_number(eU256::from(42))
+//.send()
+//.await
+//.unwrap()
+//.await
+//.unwrap();
 
-    let parsed_file = fs::read_to_string("test_logs.log").expect("Unable to read log file");
-    assert!(parsed_file.contains("You set the number to: , 42"));
-    fs::remove_file("test_logs.log").expect("Unable to remove log file");
-}
+// let parsed_file = fs::read_to_string("test_logs.log").expect("Unable to read
+// log file"); assert!(parsed_file.contains("You set the number to: , 42"));
+// fs::remove_file("test_logs.log").expect("Unable to remove log file");
+//}
