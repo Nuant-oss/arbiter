@@ -9,7 +9,7 @@ use ethers::{
     utils::{hex, keccak256},
 };
 use revm::{
-    db::{ethersdb::EthersDB, in_memory_db::CacheDB, EmptyDB, EmptyDBTyped},
+    db::{EthersDB, in_memory_db::CacheDB, EmptyDB, EmptyDBTyped},
     Database,
 };
 use serde::Serialize;

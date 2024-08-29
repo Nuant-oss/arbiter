@@ -23,7 +23,7 @@ impl<DB: Database> Inspector<DB> for ConsoleLogs {
         _context: &mut EvmContext<DB>,
         call: &mut CallInputs,
     ) -> Option<CallOutcome> {
-        if call.contract == CONSOLE_ADDRESS {
+        if call.bytecode_address == CONSOLE_ADDRESS {
             self.0.push(call.input.clone());
         }
         None
