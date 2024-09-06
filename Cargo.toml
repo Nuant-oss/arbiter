@@ -41,8 +41,8 @@ path = "examples/minter/main.rs"
 #arbiter-engine = "0.4.0"
 #arbiter-macros = "0.1.4"
 
-revm = { version = "8.0.0", features = ["ethersdb", "std", "serde"] }
-revm-primitives = "3.1.1"
+revm = { version = "10.0.0", features = ["ethersdb", "std", "serde"] }
+revm-primitives = "5.0.0"
 ethers = { version = "2.0.14" }
 
 serde = { version = "1.0.200", features = ["derive"] }

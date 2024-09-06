@@ -34,7 +34,7 @@ use ethers::{
 use futures_timer::Delay;
 use futures_util::Stream;
 use rand::{rngs::StdRng, SeedableRng};
-use revm::primitives::{CreateScheme, Output, TransactTo};
+use revm::primitives::{Output, TransactTo};
 use serde::de::DeserializeOwned;
 use serde_json::value::RawValue;
 
@@ -424,7 +424,7 @@ impl Middleware for ArbiterMiddleware {
         // `Call`.
         let transact_to = match tx.to_addr() {
             Some(&to) => TransactTo::Call(to.to_fixed_bytes().into()),
-            None => TransactTo::Create(CreateScheme::Create),
+            None => TransactTo::Create,
         };
 
         // Extract `from` field if it exists
@@ -490,7 +490,7 @@ impl Middleware for ArbiterMiddleware {
                     let logs = revm_logs_to_ethers_logs(logs, &receipt_data);
                     let to: Option<eAddress> = match tx_env.transact_to {
                         TransactTo::Call(address) => Some(address.into_array().into()),
-                        TransactTo::Create(_) => None,
+                        TransactTo::Create => None,
                     };
 
                     match output {
@@ -626,7 +626,7 @@ impl Middleware for ArbiterMiddleware {
         // `Call`.
         let transact_to = match tx.to_addr() {
             Some(&to) => TransactTo::Call(to.to_fixed_bytes().into()),
-            None => TransactTo::Create(CreateScheme::Create),
+            None => TransactTo::Create,
         };
         let tx_env = TxEnv {
             caller: self.address().to_fixed_bytes().into(),
